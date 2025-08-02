@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembrete de Alinhamento Pessoal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 p-4">
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { createPortal } = ReactDOM;
+
+        const Modal = ({ isOpen, onClose, message, title }) => {
+            if (!isOpen) return null;
+
+            return createPortal(
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all duration-300 scale-100">
+                        <h3 className="text-2xl font-bold text-slate-800 mb-2">{title}</h3>
+                        <p className="text-lg text-slate-600 mb-6">{message}</p>
+                        <div className="flex justify-end">
+                            <button
+                                onClick={onClose}
+                                className="px-6 py-2 bg-gradient-to-r from-sky-500 to-blue-500 text-white font-semibold rounded-lg shadow-md hover:from-sky-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200 active:scale-95"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            );
+        };
+
+        const App = () => {
+            const [modalOpen, setModalOpen] = useState(false);
+            const [modalMessage, setModalMessage] = useState('');
+            const [modalTitle, setModalTitle] = useState('');
+
+            const alignmentPoints = [
+                { text: 'Respondo ao que me entusiasma, não ao que me pressiona', key: 'enthusiasm', color: 'bg-emerald-500' },
+                { text: 'Espero clareza emocional antes de decidir', key: 'clarity', color: 'bg-blue-500' },
+                { text: 'Sinto satisfação no que estou a fazer', key: 'satisfaction', color: 'bg-yellow-500' },
+                { text: 'Faço uma coisa de cada vez, com presença', key: 'presence', color: 'bg-purple-500' },
+                { text: 'Informo os outros do que vou fazer para evitar atrito', key: 'communication', color: 'bg-indigo-500' },
+                { text: 'Confio no meu corpo — se contrai, é “não”; se expande, é “sim”', key: 'body', color: 'bg-pink-500' },
+                { text: 'Aceito que aprender envolve errar e ajustar', key: 'learning', color: 'bg-orange-500' },
+                { text: 'Sinto paz interior e leveza ao seguir o meu ritmo', key: 'peace', color: 'bg-teal-500' },
+            ];
+
+            const offCenterPoints = [
+                { text: 'Sinto frustração constante ou irritação sem motivo claro', key: 'frustration', color: 'bg-red-500' },
+                { text: 'Digo “sim” por medo de desapontar ou perder algo', key: 'fear', color: 'bg-rose-500' },
+                { text: 'Faço coisas que já não me entusiasmam', key: 'disinterest', color: 'bg-gray-500' },
+                { text: 'Tomo decisões no calor da emoção', key: 'emotion', color: 'bg-amber-500' },
+                { text: 'Sinto raiva por tentarem controlar-me', key: 'anger', color: 'bg-stone-500' },
+                { text: 'Tento fazer tudo ao mesmo tempo e fico exausta', key: 'exhaustion', color: 'bg-zinc-500' },
+                { text: 'Quero provar o meu valor através do esforço', key: 'proving', color: 'bg-neutral-500' },
+                { text: 'Ignoro o que o meu corpo e emoções me estão a mostrar', key: 'ignore', color: 'bg-slate-500' },
+            ];
+
+            const [toggles, setToggles] = useState({});
+
+            useEffect(() => {
+                const initialToggles = {};
+                alignmentPoints.forEach(p => initialToggles[p.key] = false);
+                offCenterPoints.forEach(p => initialToggles[p.key] = false);
+                setToggles(initialToggles);
+            }, []);
+
+            const handleToggle = (key, text, type) => {
+                setToggles(prevToggles => {
+                    const newToggles = { ...prevToggles };
+                    
+                    if (type === 'alignment') {
+                        offCenterPoints.forEach(p => newToggles[p.key] = false);
+                    } else {
+                        alignmentPoints.forEach(p => newToggles[p.key] = false);
+                    }
+                    
+                    newToggles[key] = !prevToggles[key];
+
+                    if (newToggles[key]) {
+                        setModalTitle(type === 'alignment' ? 'Alinhada' : 'A Sair do Centro');
+                        setModalMessage(`Ponto selecionado: ${text}`);
+                        setModalOpen(true);
+                    }
+
+                    return newToggles;
+                });
+            };
+
+            const handleCloseModal = () => {
+                setModalOpen(false);
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-100 p-4 font-inter text-slate-900 flex flex-col items-center justify-center">
+                    <div className="bg-white rounded-2xl shadow-xl p-8 max-w-4xl w-full">
+                        <h1 className="text-3xl sm:text-4xl font-extrabold text-center mb-6 text-slate-800">
+                            Lembrete de Alinhamento Pessoal
+                        </h1>
+                        <p className="text-center text-lg text-slate-600 mb-10">
+                            Usa esta ferramenta para te conectares com as tuas sensações. Clica num ponto para refletir sobre o teu estado atual.
+                        </p>
+
+                        <div className="space-y-8">
+                            <div>
+                                <div className="flex items-center mb-4">
+                                    <span className="w-4 h-4 rounded-full bg-emerald-500 mr-3"></span>
+                                    <h2 className="text-xl sm:text-2xl font-bold text-slate-700">
+                                        Hoje estou alinhada quando:
+                                    </h2>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {alignmentPoints.map((point) => (
+                                        <button
+                                            key={point.key}
+                                            onClick={() => handleToggle(point.key, point.text, 'alignment')}
+                                            className={`flex items-center p-4 rounded-xl shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-opacity-50 text-left ${
+                                                toggles[point.key] ? `${point.color} text-white scale-105 shadow-lg` : 'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-300'
+                                            }`}
+                                        >
+                                            <span className={`w-4 h-4 rounded-full mr-4 border-2 ${toggles[point.key] ? 'border-white' : `border-${point.color.split('-')[1]}-500`}`}></span>
+                                            <span className="font-medium">{point.text}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="h-0.5 bg-slate-200 rounded-full my-8"></div>
+
+                            <div>
+                                <div className="flex items-center mb-4">
+                                    <span className="w-4 h-4 rounded-full bg-red-500 mr-3"></span>
+                                    <h2 className="text-xl sm:text-2xl font-bold text-slate-700">
+                                        Estou a sair do meu centro quando:
+                                    </h2>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {offCenterPoints.map((point) => (
+                                        <button
+                                            key={point.key}
+                                            onClick={() => handleToggle(point.key, point.text, 'off-center')}
+                                            className={`flex items-center p-4 rounded-xl shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-opacity-50 text-left ${
+                                                toggles[point.key] ? `${point.color} text-white scale-105 shadow-lg` : 'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-300'
+                                            }`}
+                                        >
+                                            <span className={`w-4 h-4 rounded-full mr-4 border-2 ${toggles[point.key] ? 'border-white' : `border-${point.color.split('-')[1]}-500`}`}></span>
+                                            <span className="font-medium">{point.text}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <Modal 
+                        isOpen={modalOpen} 
+                        onClose={handleCloseModal} 
+                        message={modalMessage} 
+                        title={modalTitle}
+                    />
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
